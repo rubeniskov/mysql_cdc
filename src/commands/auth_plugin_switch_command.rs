@@ -4,6 +4,7 @@ use std::io::{self, Cursor, Write};
 pub struct AuthPluginSwitchCommand {
     pub password: String,
     pub scramble: String,
+    #[allow(dead_code)]
     pub auth_plugin_name: String,
     pub auth_plugin: AuthPlugin,
 }

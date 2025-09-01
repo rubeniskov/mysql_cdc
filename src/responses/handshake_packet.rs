@@ -8,14 +8,20 @@ use std::io::{Cursor, Read};
 /// <a href="https://mariadb.com/kb/en/library/connection/#initial-handshake-packet">See more</a>
 #[derive(Debug)]
 pub struct HandshakePacket {
+    #[allow(dead_code)]
     pub protocol_version: u8,
     pub server_version: String,
+    #[allow(dead_code)]
     pub connection_id: u32,
     pub scramble: String,
     pub server_capabilities: u64,
+    #[allow(dead_code)]
     pub server_collation: u8,
+    #[allow(dead_code)]
     pub status_flags: u16,
+    #[allow(dead_code)]
     pub filler: String,
+    #[allow(dead_code)]
     pub auth_plugin_length: u8,
     pub auth_plugin_name: String,
 }

@@ -28,10 +28,11 @@ fn main() -> Result<(), Error> {
 
     let options = ReplicaOptions {
         username: String::from("root"),
-        password: String::from("Qwertyu1"),
+        password: String::from("!ChangeMe!"),
         blocking: true,
-        ssl_mode: SslMode::Disabled,
+        ssl_mode: SslMode::IfAvailable,
         binlog: options,
+        hostname: "127.0.0.1".to_string(),
         ..Default::default()
     };
 

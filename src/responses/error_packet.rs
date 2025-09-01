@@ -5,8 +5,11 @@ use std::io::{self, Cursor, Read};
 /// <a href="https://mariadb.com/kb/en/library/err_packet/">See more</a>
 #[derive(Debug)]
 pub struct ErrorPacket {
+    #[allow(dead_code)]
     pub error_code: u16,
+    #[allow(dead_code)]
     pub error_message: String,
+    #[allow(dead_code)]
     pub sql_state: Option<String>,
 }
 

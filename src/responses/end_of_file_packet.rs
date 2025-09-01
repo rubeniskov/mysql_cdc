@@ -5,7 +5,9 @@ use std::io::{self, Cursor};
 /// <a href="https://mariadb.com/kb/en/library/eof_packet/">See more</a>
 #[derive(Debug)]
 pub struct EndOfFilePacket {
+    #[allow(dead_code)]
     pub warning_count: u16,
+    #[allow(dead_code)]
     pub server_status: u16,
 }
 

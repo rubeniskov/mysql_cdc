@@ -12,5 +12,25 @@ license = "MIT"
 byteorder = "1.4.3"
 sha1 = "0.10.5"
 sha2 = "0.10.6"
-openssl = "0.10.54"
+
 hex = "0.4.3"
+
+rsa   = { version = "0.9", features = ["pkcs5"] }
+
+# --- TLS backends (optional, feature-gated) ---
+native-tls = { version = "0.2", optional = true }
+rustls = { version = "0.23", features = ["std"], optional = true }
+rustls-pki-types = { version = "1", optional = true }
+rustls-native-certs = { version = "0.8.1", optional = true }
+webpki-roots = { version = "1.0.2", optional = true }
+
+[features]
+default = ["rustls-tls"]
+native-tls = ["dep:native-tls"]
+rustls-tls = [
+  "dep:rustls",
+  "dep:rustls-pki-types",
+  "dep:rustls-native-certs",
+  "dep:webpki-roots"
+]
+dangerous-rustls = []

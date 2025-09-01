@@ -1,4 +1,6 @@
-use openssl::rsa::{Padding, Rsa};
+use rsa::rand_core::OsRng;
+use rsa::{pkcs8::DecodePublicKey, Oaep, RsaPublicKey};
+use sha1::Sha1;
 
 use crate::binlog_client::BinlogClient;
 use crate::commands::auth_plugin_switch_command::AuthPluginSwitchCommand;
@@ -12,7 +14,7 @@ use crate::extensions::{check_error_packet, xor};
 use crate::packet_channel::PacketChannel;
 use crate::responses::auth_switch_packet::AuthPluginSwitchPacket;
 use crate::responses::handshake_packet::HandshakePacket;
-use crate::responses::response_type::ResponseType;
+use crate::responses::response_type::response_type;
 use crate::ssl_mode::SslMode;
 
 impl BinlogClient {
@@ -46,8 +48,19 @@ impl BinlogClient {
                 let ssl_command = SslRequestCommand::new(UTF8_MB4_GENERAL_CI);
                 channel.write_packet(&ssl_command.serialize()?, seq_num)?;
                 seq_num += 1;
-                channel.upgrade_to_ssl();
-                use_ssl = true;
+                let tls_res: Result<bool, std::io::Error> = {
+                    #[cfg(feature = "native-tls")]
+                    { channel.upgrade_to_ssl_native_tls() }
+                    #[cfg(all(not(feature = "native-tls"), feature = "rustls-tls"))]
+                    { channel.upgrade_to_ssl_rustls() }
+                    #[cfg(all(not(feature = "native-tls"), not(feature = "rustls-tls")))]
+                    { Err(std::io::Error::new(std::io::ErrorKind::Other, "No TLS backend compiled")) }
+                };
+                match tls_res {
+                    Ok(true) => use_ssl = true,
+                    Ok(false) => { /* IfAvailable fallback; continue cleartext */ }
+                    Err(e) => return Err(e.into()),
+                }
             }
         }
 
@@ -58,8 +71,8 @@ impl BinlogClient {
         check_error_packet(&packet, "Authentication error.")?;
 
         match packet[0] {
-            ResponseType::OK => return Ok(()),
-            ResponseType::AUTH_PLUGIN_SWITCH => {
+            response_type::OK => return Ok(()),
+            response_type::AUTH_PLUGIN_SWITCH => {
                 let switch_packet = AuthPluginSwitchPacket::parse(&packet[1..])?;
                 self.handle_auth_plugin_switch(channel, switch_packet, seq_num + 1, use_ssl)?;
                 Ok(())
@@ -137,17 +150,20 @@ impl BinlogClient {
         let (packet, seq_num) = channel.read_packet()?;
         check_error_packet(&packet, "Requesting caching_sha2_password public key.")?;
 
-        // Extract public key.
-        let public_key = &packet[1..];
-        let encrypted_password = xor(&password, &scramble.as_bytes());
+        let public_pem_bytes = &packet[1..];
+        let public_pem = std::str::from_utf8(public_pem_bytes)
+            .map_err(|e| Error::String(format!("Invalid PEM UTF-8: {e}")))?;
 
-        let rsa = Rsa::public_key_from_pem(public_key)?;
-        let mut encrypted_body = vec![0u8; rsa.size() as usize];
-        rsa.public_encrypt(
-            &encrypted_password,
-            &mut encrypted_body,
-            Padding::PKCS1_OAEP,
-        )?;
+        let encrypted_password = xor(&password, &scramble.as_bytes());
+        let rsa_pub = RsaPublicKey::from_public_key_pem(public_pem)
+            .map_err(|e| Error::String(format!("Invalid RSA public key: {e}")))?;
+
+        let padding = Oaep::new::<Sha1>();
+        let mut rng = OsRng;
+
+        let encrypted_body = rsa_pub
+             .encrypt(&mut rng, padding, &encrypted_password)
+            .map_err(|e| Error::String(format!("RSA OAEP encrypt error: {e}")))?;
 
         channel.write_packet(&encrypted_body, seq_num + 1)?;
         let (packet, _seq_num) = channel.read_packet()?;
