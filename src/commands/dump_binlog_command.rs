@@ -29,7 +29,7 @@ impl DumpBinlogCommand {
         cursor.write_u32::<LittleEndian>(self.binlog_position)?;
         cursor.write_u16::<LittleEndian>(self.flags)?;
         cursor.write_u32::<LittleEndian>(self.server_id)?;
-        cursor.write(self.binlog_filename.as_bytes())?;
+        cursor.write_all(self.binlog_filename.as_bytes())?;
 
         Ok(vec)
     }

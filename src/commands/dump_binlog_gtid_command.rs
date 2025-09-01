@@ -1,5 +1,5 @@
 use crate::commands::command_type::CommandType;
-use crate::providers::mysql::gtid::gtid_set::GtidSet;
+use crate::providers::mysql::gtid::GtidSet;
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::io::{self, Cursor, Write};
 
@@ -32,7 +32,7 @@ impl DumpBinlogGtidCommand {
 
         let filename_len = self.binlog_filename.len() as u32;
         cursor.write_u32::<LittleEndian>(filename_len)?;
-        cursor.write(self.binlog_filename.as_bytes())?;
+        cursor.write_all(self.binlog_filename.as_bytes())?;
 
         let position = self.binlog_position as u64;
         cursor.write_u64::<LittleEndian>(position)?;
@@ -48,7 +48,7 @@ impl DumpBinlogGtidCommand {
         cursor.write_u64::<LittleEndian>(gtid_set.uuid_sets.len() as u64)?;
 
         for uuid_set in gtid_set.uuid_sets.values() {
-            cursor.write(&uuid_set.source_id.data)?;
+            cursor.write_all(&uuid_set.source_id.data)?;
             cursor.write_u64::<LittleEndian>(uuid_set.intervals.len() as u64)?;
 
             for interval in &uuid_set.intervals {

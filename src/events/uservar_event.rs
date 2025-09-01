@@ -77,7 +77,7 @@ mod tests {
 
         let event = UserVarEvent::parse(&mut cursor).unwrap();
         assert_eq!(String::from("foo"), event.name);
-        assert_eq!(false, event.value.is_none());
+        assert!(event.value.is_some());
 
         let variable = event.value.unwrap();
         assert_eq!(0, variable.var_type);

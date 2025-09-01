@@ -120,7 +120,10 @@ impl PacketChannel {
         let connector = b.build().map_err(tls_other)?;
 
         // Take the TcpStream
-        let tcp = match std::mem::replace(&mut self.stream, Transport::Tls(Box::new(std::io::Cursor::new(Vec::<u8>::new())))) {
+        let tcp = match std::mem::replace(
+            &mut self.stream,
+            Transport::Tls(Box::new(std::io::Cursor::new(Vec::<u8>::new()))),
+        ) {
             Transport::Tcp(s) => s,
             other => {
                 // Already TLS; put it back and say "true"
@@ -170,54 +173,29 @@ impl PacketChannel {
         if roots.is_empty() {
             roots.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
         }
-       
+
         // Map SslMode -> config
         let cfg: ClientConfig = match self.ssl_mode {
-            // "No verify" (dev only) – needs `dangerous-rustls`
-            SslMode::IfAvailable | SslMode::Require => {
-                #[cfg(feature = "dangerous-rustls")]
-                {
-                    use rustls::client::danger::{ServerCertVerified, ServerCertVerifier};
-                    #[derive(Debug)]
-                    struct NoVerify;
-                    impl ServerCertVerifier for NoVerify {
-                        fn verify_server_cert(
-                            &self,
-                            _end_entity: &rustls_pki_types::CertificateDer<'_>,
-                            _intermediates: &[rustls_pki_types::CertificateDer<'_>],
-                            _server_name: &ServerName<'_>,
-                            _scts: &mut dyn Iterator<Item = &[u8]>,
-                            _ocsp: &[u8],
-                            _now: std::time::SystemTime,
-                        ) -> Result<ServerCertVerified, rustls::Error> {
-                            Ok(ServerCertVerified::assertion())
-                        }
-                    }
-                    ClientConfig::builder()
-                        .dangerous()
-                        .with_custom_certificate_verifier(Arc::new(NoVerify))
-                        .with_no_client_auth()
-                }
-                #[cfg(not(feature = "dangerous-rustls"))]
-                {
-                    ClientConfig::builder().with_root_certificates(roots).with_no_client_auth()
-                }
-            }
+            // "No verify"
+            SslMode::IfAvailable | SslMode::Require => ClientConfig::builder()
+                .with_root_certificates(roots)
+                .with_no_client_auth(),
             // CA-only verify (skip hostname) would need a custom verifier; treat as full for now.
-            SslMode::RequireVerifyCa => {
-                ClientConfig::builder().with_root_certificates(roots).with_no_client_auth()
-            }
-            SslMode::RequireVerifyFull => {
-                ClientConfig::builder().with_root_certificates(roots).with_no_client_auth()
-            }
+            SslMode::RequireVerifyCa => ClientConfig::builder()
+                .with_root_certificates(roots)
+                .with_no_client_auth(),
+            SslMode::RequireVerifyFull => ClientConfig::builder()
+                .with_root_certificates(roots)
+                .with_no_client_auth(),
             SslMode::Disabled => unreachable!(),
         };
 
-       let server_name = match ServerName::try_from(self.hostname.clone()) {
+        let server_name = match ServerName::try_from(self.hostname.clone()) {
             Ok(s) => s, // DNS name, now owned => 'static
             Err(_) => {
                 // Host is an IP literal; this variant is 'static by construction
-                let ip: std::net::IpAddr = self.hostname
+                let ip: std::net::IpAddr = self
+                    .hostname
                     .parse()
                     .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
                 ServerName::IpAddress(ip.into())
@@ -234,7 +212,7 @@ impl PacketChannel {
         };
 
         let conn = ClientConnection::new(Arc::new(cfg), server_name)
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("TLS error: {e}")))?;
+            .map_err(|e| io::Error::other(format!("TLS error: {e}")))?;
         let tls = StreamOwned::new(conn, tcp);
         self.stream = Transport::Tls(Box::new(tls));
         Ok(true)
@@ -243,5 +221,5 @@ impl PacketChannel {
 
 #[cfg(feature = "native-tls")]
 fn tls_other<E: std::fmt::Display>(e: E) -> io::Error {
-    io::Error::new(io::ErrorKind::Other, format!("TLS error: {e}"))
+    io::Error::other(format!("TLS error: {e}"))
 }

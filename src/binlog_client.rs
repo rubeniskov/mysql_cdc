@@ -3,9 +3,9 @@ use crate::constants::database_provider::DatabaseProvider;
 use crate::errors::Error;
 use crate::events::binlog_event::BinlogEvent;
 use crate::events::event_header::EventHeader;
-use crate::providers::mariadb::gtid::gtid::Gtid as MariaGtid;
+use crate::providers::mariadb::gtid::Gtid as MariaGtid;
 use crate::providers::mariadb::mariadb_provider::replicate_mariadb;
-use crate::providers::mysql::gtid::gtid::Gtid as MySqlGtid;
+use crate::providers::mysql::gtid::Gtid as MySqlGtid;
 use crate::providers::mysql::mysql_provider::replicate_mysql;
 use crate::replica_options::ReplicaOptions;
 use crate::starting_strategy::StartingStrategy;
@@ -98,7 +98,7 @@ impl BinlogClient {
         // after we read them atomically to prevent missing mapping on reconnect.
         // Figure out something better as TableMapEvent can be followed by several row events.
         match event {
-            BinlogEvent::TableMapEvent(_) => return,
+            BinlogEvent::TableMapEvent(_) => (),
             BinlogEvent::RotateEvent(x) => {
                 self.options.binlog.filename = x.binlog_filename.clone();
                 self.options.binlog.position = x.binlog_position as u32;

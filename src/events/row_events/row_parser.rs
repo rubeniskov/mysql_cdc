@@ -19,6 +19,7 @@ pub const TABLE_MAP_NOT_FOUND: &str =
     "No preceding TableMapEvent event was found for the row event. \
 You possibly started replication in the middle of logical event group.";
 
+#[allow(clippy::empty_line_after_doc_comments)]
 /// Parsing row based events.
 /// See <a href="https://mariadb.com/kb/en/library/rows_event_v1/">MariaDB rows version 1</a>
 /// See <a href="https://dev.mysql.com/doc/internals/en/rows-event.html#write-rows-eventv2">MySQL rows version 1/2</a>
@@ -28,7 +29,7 @@ pub fn parse_row_data_list(
     cursor: &mut Cursor<&[u8]>,
     table_map: &HashMap<u64, TableMapEvent>,
     table_id: u64,
-    columns_present: &Vec<bool>,
+    columns_present: &[bool],
 ) -> Result<Vec<RowData>, Error> {
     let table = match table_map.get(&table_id) {
         Some(x) => x,
@@ -47,8 +48,8 @@ pub fn parse_update_row_data_list(
     cursor: &mut Cursor<&[u8]>,
     table_map: &HashMap<u64, TableMapEvent>,
     table_id: u64,
-    columns_before_update: &Vec<bool>,
-    columns_after_update: &Vec<bool>,
+    columns_before_update: &[bool],
+    columns_after_update: &[bool],
 ) -> Result<Vec<UpdateRowData>, Error> {
     let table = match table_map.get(&table_id) {
         Some(x) => x,
@@ -97,7 +98,7 @@ pub fn parse_head(
 pub fn parse_row(
     cursor: &mut Cursor<&[u8]>,
     table_map: &TableMapEvent,
-    columns_present: &Vec<bool>,
+    columns_present: &[bool],
     cells_included: usize,
 ) -> Result<RowData, Error> {
     let mut row = Vec::with_capacity(table_map.column_types.len());
@@ -151,9 +152,7 @@ fn parse_cell(
         ColumnType::Enum => {
             MySqlValue::Enum(cursor.read_uint::<LittleEndian>(metadata as usize)? as u32)
         }
-        ColumnType::Set => {
-            MySqlValue::Set(cursor.read_uint::<LittleEndian>(metadata as usize)? as u64)
-        }
+        ColumnType::Set => MySqlValue::Set(cursor.read_uint::<LittleEndian>(metadata as usize)?),
         /* Blob types. MariaDB always creates BLOB for first three */
         ColumnType::TinyBlob => MySqlValue::Blob(parse_blob(cursor, metadata)?),
         ColumnType::MediumBlob => MySqlValue::Blob(parse_blob(cursor, metadata)?),
@@ -184,6 +183,6 @@ fn parse_cell(
 }
 
 /// Gets number of bits set in a bitmap.
-fn get_bits_number(bitmap: &Vec<bool>) -> usize {
-    bitmap.iter().filter(|&x| *x == true).count()
+fn get_bits_number(bitmap: &[bool]) -> usize {
+    bitmap.iter().filter(|&x| *x).count()
 }

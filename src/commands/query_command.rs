@@ -18,7 +18,7 @@ impl QueryCommand {
         let mut cursor = Cursor::new(&mut vec);
 
         cursor.write_u8(CommandType::Query as u8)?;
-        cursor.write(self.sql.as_bytes())?;
+        cursor.write_all(self.sql.as_bytes())?;
 
         Ok(vec)
     }

@@ -1,7 +1,7 @@
 use crate::providers::mysql::gtid::interval::Interval;
 use crate::providers::mysql::gtid::uuid::Uuid;
 use crate::providers::mysql::gtid::uuid_set::UuidSet;
-use crate::{errors::Error, providers::mysql::gtid::gtid_set::GtidSet};
+use crate::{errors::Error, providers::mysql::gtid::GtidSet};
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::io::{Cursor, Read};
 

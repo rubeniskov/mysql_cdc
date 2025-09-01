@@ -11,16 +11,16 @@ pub struct AuthPluginSwitchCommand {
 
 impl AuthPluginSwitchCommand {
     pub fn new(
-        password: &String,
-        scramble: &String,
-        auth_plugin_name: &String,
+        password: &str,
+        scramble: &str,
+        auth_plugin_name: &str,
         auth_plugin: AuthPlugin,
     ) -> Self {
         Self {
-            password: password.clone(),
-            scramble: scramble.clone(),
-            auth_plugin_name: auth_plugin_name.clone(),
-            auth_plugin: auth_plugin,
+            password: password.to_owned(),
+            scramble: scramble.to_owned(),
+            auth_plugin_name: auth_plugin_name.to_owned(),
+            auth_plugin,
         }
     }
 
@@ -30,7 +30,7 @@ impl AuthPluginSwitchCommand {
 
         let encrypted_password =
             encrypt_password(&self.password, &self.scramble, &self.auth_plugin);
-        cursor.write(&encrypted_password)?;
+        cursor.write_all(&encrypted_password)?;
 
         Ok(vec)
     }

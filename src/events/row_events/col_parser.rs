@@ -10,7 +10,7 @@ pub fn parse_string(cursor: &mut Cursor<&[u8]>, metadata: u16) -> Result<String,
     } else {
         cursor.read_u16::<LittleEndian>()? as usize
     };
-    Ok(read_string(cursor, length)?)
+    read_string(cursor, length)
 }
 
 pub fn parse_bit(cursor: &mut Cursor<&[u8]>, metadata: u16) -> Result<Vec<bool>, Error> {
@@ -56,9 +56,9 @@ pub fn parse_time(cursor: &mut Cursor<&[u8]>, _metadata: u16) -> Result<Time, Er
     }
 
     let second = value % 100;
-    value = value / 100;
+    value /= 100;
     let minute = value % 100;
-    value = value / 100;
+    value /= 100;
     let hour = value;
     Ok(Time {
         hour: hour as i16,
@@ -99,15 +99,15 @@ pub fn parse_time2(cursor: &mut Cursor<&[u8]>, metadata: u16) -> Result<Time, Er
 pub fn parse_date_time(cursor: &mut Cursor<&[u8]>, _metadata: u16) -> Result<DateTime, Error> {
     let mut value = cursor.read_u64::<LittleEndian>()?;
     let second = value % 100;
-    value = value / 100;
+    value /= 100;
     let minute = value % 100;
-    value = value / 100;
+    value /= 100;
     let hour = value % 100;
-    value = value / 100;
+    value /= 100;
     let day = value % 100;
-    value = value / 100;
+    value /= 100;
     let month = value % 100;
-    value = value / 100;
+    value /= 100;
     let year = value;
 
     Ok(DateTime {
@@ -158,7 +158,7 @@ pub fn parse_timestamp2(cursor: &mut Cursor<&[u8]>, metadata: u16) -> Result<u64
 }
 
 fn parse_fractional_part(cursor: &mut Cursor<&[u8]>, metadata: u16) -> Result<u64, Error> {
-    let length = (metadata + 1) / 2;
+    let length = metadata.div_ceil(2);
     if length == 0 {
         return Ok(0);
     }

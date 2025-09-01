@@ -2,6 +2,7 @@ use crate::errors::Error;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::{Cursor, Read};
 
+#[allow(clippy::empty_line_after_doc_comments)]
 /// See <a href="https://dev.mysql.com/doc/internals/en/date-and-time-data-type-representation.html">Docs</a>
 
 const DIGITS_PER_INT: u8 = 9;
@@ -34,8 +35,8 @@ pub fn parse_decimal(cursor: &mut Cursor<&[u8]>, metadata: u16) -> Result<String
 
     if negative {
         result += "-";
-        for i in 0..value.len() {
-            value[i] ^= 0xFF;
+        for item in &mut value {
+            *item ^= 0xFF;
         }
     }
 

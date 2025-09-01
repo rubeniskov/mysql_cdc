@@ -1,9 +1,10 @@
 use crate::errors::Error;
 
 /// Checksum type used in a binlog file.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub enum ChecksumType {
     /// Checksum is disabled.
+    #[default]
     None = 0,
 
     /// CRC32 checksum.

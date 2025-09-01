@@ -1,4 +1,4 @@
-use crate::providers::mariadb::gtid::gtid::Gtid;
+use crate::providers::mariadb::gtid::Gtid;
 use crate::{errors::Error, events::event_header::EventHeader};
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::io::Cursor;

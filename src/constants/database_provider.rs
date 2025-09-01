@@ -5,7 +5,7 @@ pub enum DatabaseProvider {
 }
 
 impl DatabaseProvider {
-    pub fn from(server: &String) -> Self {
+    pub fn from(server: &str) -> Self {
         match server.contains("MariaDB") {
             true => DatabaseProvider::MariaDB,
             _ => DatabaseProvider::MySQL,

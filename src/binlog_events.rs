@@ -7,7 +7,7 @@ use crate::events::event_parser::EventParser;
 use crate::packet_channel::PacketChannel;
 use crate::responses::end_of_file_packet::EndOfFilePacket;
 use crate::responses::error_packet::ErrorPacket;
-use crate::responses::response_type::response_type;
+use crate::responses::response_type;
 
 pub struct BinlogEvents {
     pub channel: PacketChannel,

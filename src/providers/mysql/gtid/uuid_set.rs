@@ -1,7 +1,7 @@
 use crate::errors::Error;
-use crate::providers::mysql::gtid::gtid::Gtid;
 use crate::providers::mysql::gtid::interval::Interval;
 use crate::providers::mysql::gtid::uuid::Uuid;
+use crate::providers::mysql::gtid::Gtid;
 use std::fmt;
 
 /// Represents replication state for a specific server.
@@ -58,7 +58,7 @@ impl UuidSet {
     }
 }
 
-pub fn find_interval_index(intervals: &Vec<Interval>, transaction_id: u64) -> usize {
+pub fn find_interval_index(intervals: &[Interval], transaction_id: u64) -> usize {
     let mut result_index = 0;
     let mut left_index = 0;
     let mut right_index = intervals.len();

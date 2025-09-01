@@ -14,7 +14,7 @@ use crate::extensions::{check_error_packet, xor};
 use crate::packet_channel::PacketChannel;
 use crate::responses::auth_switch_packet::AuthPluginSwitchPacket;
 use crate::responses::handshake_packet::HandshakePacket;
-use crate::responses::response_type::response_type;
+use crate::responses::response_type;
 use crate::ssl_mode::SslMode;
 
 impl BinlogClient {
@@ -50,11 +50,20 @@ impl BinlogClient {
                 seq_num += 1;
                 let tls_res: Result<bool, std::io::Error> = {
                     #[cfg(feature = "native-tls")]
-                    { channel.upgrade_to_ssl_native_tls() }
+                    {
+                        channel.upgrade_to_ssl_native_tls()
+                    }
                     #[cfg(all(not(feature = "native-tls"), feature = "rustls-tls"))]
-                    { channel.upgrade_to_ssl_rustls() }
+                    {
+                        channel.upgrade_to_ssl_rustls()
+                    }
                     #[cfg(all(not(feature = "native-tls"), not(feature = "rustls-tls")))]
-                    { Err(std::io::Error::new(std::io::ErrorKind::Other, "No TLS backend compiled")) }
+                    {
+                        Err(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            "No TLS backend compiled",
+                        ))
+                    }
                 };
                 match tls_res {
                     Ok(true) => use_ssl = true,
@@ -71,7 +80,7 @@ impl BinlogClient {
         check_error_packet(&packet, "Authentication error.")?;
 
         match packet[0] {
-            response_type::OK => return Ok(()),
+            response_type::OK => Ok(()),
             response_type::AUTH_PLUGIN_SWITCH => {
                 let switch_packet = AuthPluginSwitchPacket::parse(&packet[1..])?;
                 self.handle_auth_plugin_switch(channel, switch_packet, seq_num + 1, use_ssl)?;
@@ -154,7 +163,7 @@ impl BinlogClient {
         let public_pem = std::str::from_utf8(public_pem_bytes)
             .map_err(|e| Error::String(format!("Invalid PEM UTF-8: {e}")))?;
 
-        let encrypted_password = xor(&password, &scramble.as_bytes());
+        let encrypted_password = xor(&password, scramble.as_bytes());
         let rsa_pub = RsaPublicKey::from_public_key_pem(public_pem)
             .map_err(|e| Error::String(format!("Invalid RSA public key: {e}")))?;
 
@@ -162,7 +171,7 @@ impl BinlogClient {
         let mut rng = OsRng;
 
         let encrypted_body = rsa_pub
-             .encrypt(&mut rng, padding, &encrypted_password)
+            .encrypt(&mut rng, padding, &encrypted_password)
             .map_err(|e| Error::String(format!("RSA OAEP encrypt error: {e}")))?;
 
         channel.write_packet(&encrypted_body, seq_num + 1)?;

@@ -48,7 +48,7 @@ impl AuthenticateCommand {
             database: options.database.clone(),
             scramble: handshake.scramble.clone(),
             auth_plugin_name: handshake.auth_plugin_name.clone(),
-            auth_plugin: auth_plugin,
+            auth_plugin,
         }
     }
 
@@ -70,7 +70,7 @@ impl AuthenticateCommand {
         let encrypted_password =
             encrypt_password(&self.password, &self.scramble, &self.auth_plugin);
         cursor.write_u8(encrypted_password.len() as u8)?;
-        cursor.write(&encrypted_password)?;
+        cursor.write_all(&encrypted_password)?;
 
         if let Some(database) = &self.database {
             write_null_term_string(&mut cursor, database)?;

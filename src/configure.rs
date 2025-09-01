@@ -4,7 +4,7 @@ use crate::constants::checksum_type::ChecksumType;
 use crate::errors::Error;
 use crate::extensions::check_error_packet;
 use crate::packet_channel::PacketChannel;
-use crate::responses::response_type::response_type;
+use crate::responses::response_type;
 use crate::responses::result_set_row_packet::ResultSetRowPacket;
 use crate::starting_strategy::StartingStrategy;
 
@@ -61,7 +61,7 @@ impl BinlogClient {
 
         // When replication is started fake RotateEvent comes before FormatDescriptionEvent.
         // In order to deserialize the event we have to obtain checksum type length in advance.
-        Ok(ChecksumType::from_name(&result_set[0].cells[0])?)
+        ChecksumType::from_name(&result_set[0].cells[0])
     }
 
     fn read_result_set(
