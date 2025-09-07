@@ -13,7 +13,7 @@
 //! use mysql_cdc::binlog_client::BinlogClient;
 //! use mysql_cdc::binlog_options::BinlogOptions;
 //! use mysql_cdc::errors::Error;
-//! use mysql_cdc::providers::mariadb::gtid_list::GtidList;
+//! use mysql_cdc::providers::mariadb::gtid::GtidList;
 //! use mysql_cdc::providers::mysql::gtid::GtidSet;
 //! use mysql_cdc::replica_options::ReplicaOptions;
 //! use mysql_cdc::ssl_mode::SslMode;

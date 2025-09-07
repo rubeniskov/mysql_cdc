@@ -1,5 +1,5 @@
 pub mod gtid_set;
-pub(crate) use gtid_set::*;
+pub use gtid_set::*;
 pub mod interval;
 pub mod uuid;
 pub mod uuid_set;
