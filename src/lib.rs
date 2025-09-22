@@ -40,7 +40,7 @@
 //!
 //!     let options = ReplicaOptions {
 //!         username: String::from("root"),
-//!         password: String::from("Qwertyu1"),
+//!         password: Some(String::from("Qwertyu1")),
 //!         blocking: true,
 //!         ssl_mode: SslMode::Disabled,
 //!         binlog: options,

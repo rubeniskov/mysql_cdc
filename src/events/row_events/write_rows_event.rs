@@ -8,7 +8,7 @@ use std::io::Cursor;
 
 /// Represents one or many inserted rows in row based replication.
 /// <a href="https://mariadb.com/kb/en/library/rows_event_v1/">See more</a>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WriteRowsEvent {
     /// Gets id of the table where rows were inserted
     pub table_id: u64,

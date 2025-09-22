@@ -16,11 +16,11 @@ impl From<TryFromIntError> for ConvError {
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Date { pub year: u16, pub month: u8, pub day: u8 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Time { // MySQL TIME; can be negative and up to ±838:59:59.999
     pub hour: i16,  // -838..= 838
     pub minute: u8, // 0..=59
@@ -29,14 +29,14 @@ pub struct Time { // MySQL TIME; can be negative and up to ±838:59:59.999
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DateTime {
     pub year: u16, pub month: u8, pub day: u8,
     pub hour: u8, pub minute: u8, pub second: u8, pub millis: u32,
 }
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MySqlValue {
     TinyInt(u8),
     SmallInt(u16),

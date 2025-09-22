@@ -1,7 +1,7 @@
 use crate::events::row_events::mysql_value::MySqlValue;
 
 /// Represents an inserted or deleted row in row based replication.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RowData {
     /// Column values of the changed row.
     pub cells: Vec<Option<MySqlValue>>,
@@ -14,7 +14,7 @@ impl RowData {
 }
 
 /// Represents an updated row in row based replication.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UpdateRowData {
     /// Row state before it was updated.
     pub before_update: RowData,

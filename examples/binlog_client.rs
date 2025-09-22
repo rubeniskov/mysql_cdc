@@ -28,7 +28,7 @@ fn main() -> Result<(), Error> {
 
     let options = ReplicaOptions {
         username: String::from("root"),
-        password: String::from("!ChangeMe!"),
+        password: Some(String::from("!ChangeMe!")),
         blocking: true,
         ssl_mode: SslMode::IfAvailable,
         binlog: options,

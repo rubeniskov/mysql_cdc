@@ -9,7 +9,7 @@ use std::io::Cursor;
 /// Represents one or many updated rows in row based replication.
 /// Includes versions before and after update.
 /// <a href="https://mariadb.com/kb/en/library/rows_event_v1/">See more</a>
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UpdateRowsEvent {
     /// Gets id of the table where rows were updated
     pub table_id: u64,
