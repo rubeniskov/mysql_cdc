@@ -18,6 +18,19 @@ use crate::responses::response_type;
 use crate::ssl_mode::SslMode;
 
 impl BinlogClient {
+
+    #[inline]
+    fn pwd(&self) -> &str {
+        self.options.password.as_deref().unwrap_or("")
+    }
+
+    #[inline]
+    fn pwd_cstr(&self) -> Vec<u8> {
+        let mut v = self.pwd().as_bytes().to_vec();
+        v.push(NULL_TERMINATOR);
+        v
+    }
+    
     pub fn connect(&self) -> Result<(PacketChannel, DatabaseProvider), Error> {
         let mut channel = PacketChannel::new(&self.options)?;
         let (packet, seq_num) = channel.read_packet()?;
@@ -107,13 +120,15 @@ impl BinlogClient {
         use_ssl: bool,
     ) -> Result<(), Error> {
         let auth_plugin = self.get_auth_plugin(&switch_packet.auth_plugin_name)?;
-        let auth_switch_command = AuthPluginSwitchCommand::new(
-            &self.options.password,
-            &switch_packet.auth_plugin_data,
-            &switch_packet.auth_plugin_name,
-            auth_plugin,
-        );
-        channel.write_packet(&auth_switch_command.serialize()?, seq_num)?;
+        if let Some(password) = self.options.password.as_ref() {
+            let auth_switch_command = AuthPluginSwitchCommand::new(
+                password,
+                &switch_packet.auth_plugin_data,
+                &switch_packet.auth_plugin_name,
+                auth_plugin,
+            );
+            channel.write_packet(&auth_switch_command.serialize()?, seq_num)?;
+        }
         let (packet, seq_num) = channel.read_packet()?;
         check_error_packet(&packet, "Authentication switch error.")?;
 
@@ -143,7 +158,9 @@ impl BinlogClient {
             return Ok(());
         }
 
-        let mut password = self.options.password.as_bytes().to_vec();
+        let mut password = self.options.password.as_ref()
+            .cloned()
+            .unwrap_or_default().as_bytes().to_vec();
         password.push(NULL_TERMINATOR);
 
         // Send clear password if ssl is used.

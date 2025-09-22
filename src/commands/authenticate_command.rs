@@ -44,7 +44,7 @@ impl AuthenticateCommand {
             max_packet_size: 0,
             client_collation,
             username: options.username.clone(),
-            password: options.password.clone(),
+            password: options.password.as_ref().cloned().unwrap_or_default(),
             database: options.database.clone(),
             scramble: handshake.scramble.clone(),
             auth_plugin_name: handshake.auth_plugin_name.clone(),
