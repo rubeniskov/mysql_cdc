@@ -75,10 +75,7 @@ impl TableMapEvent {
         })
     }
 
-    fn parse_metadata(
-        cursor: &mut Cursor<&[u8]>,
-        column_types: &Vec<u8>,
-    ) -> Result<Vec<u16>, Error> {
+    fn parse_metadata(cursor: &mut Cursor<&[u8]>, column_types: &[u8]) -> Result<Vec<u16>, Error> {
         let mut metadata = vec![0u16; column_types.len()];
 
         // See https://mariadb.com/kb/en/library/rows_event_v1/#column-data-formats

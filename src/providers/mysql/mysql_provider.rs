@@ -17,7 +17,7 @@ pub fn replicate_mysql(
                 options.binlog.filename.clone(),
                 options.binlog.position,
             );
-            channel.write_packet(&command.serialize(&gtid_set)?, 0)?
+            channel.write_packet(&command.serialize(gtid_set)?, 0)?
         } else {
             return Err(Error::String("GtidSet was not specified".to_string()));
         }

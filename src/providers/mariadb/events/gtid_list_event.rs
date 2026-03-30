@@ -1,5 +1,5 @@
-use crate::providers::mariadb::gtid::gtid_list::GtidList;
-use crate::{errors::Error, providers::mariadb::gtid::gtid::Gtid};
+use crate::providers::mariadb::gtid::GtidList;
+use crate::{errors::Error, providers::mariadb::gtid::Gtid};
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::io::Cursor;
 

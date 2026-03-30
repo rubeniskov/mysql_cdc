@@ -2,7 +2,7 @@ use crate::constants::auth_plugin_names::AuthPlugin;
 use crate::constants::NULL_TERMINATOR;
 use crate::errors::Error;
 use crate::responses::error_packet::ErrorPacket;
-use crate::responses::response_type::ResponseType;
+use crate::responses::response_type;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use sha1::Sha1;
 use sha2::{Digest, Sha256};
@@ -54,7 +54,7 @@ pub fn write_null_term_string(
     cursor: &mut Cursor<&mut Vec<u8>>,
     str: &String,
 ) -> Result<(), io::Error> {
-    cursor.write(str.as_bytes())?;
+    cursor.write_all(str.as_bytes())?;
     cursor.write_u8(NULL_TERMINATOR)?;
     Ok(())
 }
@@ -67,7 +67,7 @@ pub fn read_string(cursor: &mut Cursor<&[u8]>, size: usize) -> Result<String, Er
 
 pub fn read_len_enc_str(cursor: &mut Cursor<&[u8]>) -> Result<String, Error> {
     let length = read_len_enc_num(cursor)?;
-    Ok(read_string(cursor, length)?)
+    read_string(cursor, length)
 }
 
 /// if first byte is less than 0xFB - Integer value is this 1 byte integer
@@ -102,7 +102,7 @@ pub fn read_bitmap_little_endian(
     bits_number: usize,
 ) -> Result<Vec<bool>, io::Error> {
     let mut result = vec![false; bits_number];
-    let bytes_number = (bits_number + 7) / 8;
+    let bytes_number = bits_number.div_ceil(8);
     for i in 0..bytes_number {
         let value = cursor.read_u8()?;
         for y in 0..8 {
@@ -122,7 +122,7 @@ pub fn read_bitmap_big_endian(
     bits_number: usize,
 ) -> Result<Vec<bool>, io::Error> {
     let mut result = vec![false; bits_number];
-    let bytes_number = (bits_number + 7) / 8;
+    let bytes_number = bits_number.div_ceil(8);
     for i in 0..bytes_number {
         let value = cursor.read_u8()?;
         for y in 0..8 {
@@ -137,10 +137,10 @@ pub fn read_bitmap_big_endian(
 }
 
 pub fn check_error_packet(packet: &[u8], message: &str) -> Result<(), Error> {
-    if packet[0] == ResponseType::ERROR {
+    if packet[0] == response_type::ERROR {
         let error = ErrorPacket::parse(&packet[1..])?;
         let message = format!("{} {:?}", message, error).to_string();
         return Err(Error::String(message));
     }
-    return Ok(());
+    Ok(())
 }

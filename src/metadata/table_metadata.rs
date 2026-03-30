@@ -184,7 +184,7 @@ fn read_bitmap_reverted(
     bits_number: usize,
 ) -> Result<Vec<bool>, io::Error> {
     let mut result = vec![false; bits_number];
-    let bytes_number = (bits_number + 7) / 8;
+    let bytes_number = bits_number.div_ceil(8);
     for i in 0..bytes_number {
         let value = cursor.read_u8()?;
         for y in 0..8 {
@@ -202,8 +202,8 @@ fn read_bitmap_reverted(
 
 fn get_numeric_column_count(column_types: &[u8]) -> Result<usize, Error> {
     let mut count = 0;
-    for i in 0..column_types.len() {
-        match ColumnType::from_code(column_types[i])? {
+    for column_type in column_types {
+        match ColumnType::from_code(*column_type)? {
             ColumnType::Tiny => count += 1,
             ColumnType::Short => count += 1,
             ColumnType::Int24 => count += 1,

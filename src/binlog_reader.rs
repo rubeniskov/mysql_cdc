@@ -43,7 +43,7 @@ impl BinlogReader {
         let header = EventHeader::parse(&header_buffer)?;
 
         let payload_length = header.event_length as usize - EVENT_HEADER_SIZE;
-        if payload_length as usize > constants::PAYLOAD_BUFFER_SIZE {
+        if payload_length > constants::PAYLOAD_BUFFER_SIZE {
             let mut vec: Vec<u8> = vec![0; payload_length];
 
             self.stream.read_exact(&mut vec)?;
@@ -64,11 +64,9 @@ impl Iterator for BinlogReader {
 
     fn next(&mut self) -> Option<Self::Item> {
         let result = self.read_event();
-        if let Err(error) = &result {
-            if let Error::IoError(io_error) = error {
-                if let ErrorKind::UnexpectedEof = io_error.kind() {
-                    return None;
-                }
+        if let Err(Error::IoError(io_error)) = &result {
+            if let ErrorKind::UnexpectedEof = io_error.kind() {
+                return None;
             }
         }
         Some(result)

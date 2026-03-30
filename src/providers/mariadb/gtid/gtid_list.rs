@@ -1,10 +1,10 @@
 use crate::errors::Error;
-use crate::providers::mariadb::gtid::gtid::Gtid;
+use crate::providers::mariadb::gtid::Gtid;
 use std::collections::HashSet;
 use std::fmt;
 
 /// Represents GtidList from MariaDB.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct GtidList {
     /// Gets a list of Gtids per each domain.
     pub gtids: Vec<Gtid>,
@@ -34,9 +34,9 @@ impl GtidList {
             let sequence: u64 = components[2].parse()?;
 
             if domain_map.contains(&domain_id) {
-                return Err(Error::String(format!(
-                    "GtidList must consist of unique domain ids"
-                )));
+                return Err(Error::String(
+                    "GtidList must consist of unique domain ids".to_string(),
+                ));
             } else {
                 domain_map.insert(domain_id);
             }
@@ -77,7 +77,7 @@ impl fmt::Display for GtidList {
 #[cfg(test)]
 mod tests {
     use super::GtidList;
-    use crate::providers::mariadb::gtid::gtid::Gtid;
+    use crate::providers::mariadb::gtid::Gtid;
 
     #[test]
     #[should_panic(expected = "GtidList must consist of unique domain ids")]

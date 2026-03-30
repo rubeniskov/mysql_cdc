@@ -1,5 +1,5 @@
 use crate::providers::mysql::gtid::uuid::Uuid;
-use crate::{errors::Error, providers::mysql::gtid::gtid::Gtid};
+use crate::{errors::Error, providers::mysql::gtid::Gtid};
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::io::{Cursor, Read};
 

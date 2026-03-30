@@ -9,8 +9,48 @@ repository = "https://github.com/rusuly/mysql_cdc"
 license = "MIT"
 
 [dependencies]
+thiserror = "2"
+url = "2"
 byteorder = "1.4.3"
 sha1 = "0.10.5"
 sha2 = "0.10.6"
-openssl = "0.10.54"
 hex = "0.4.3"
+percent-encoding = "2"
+rsa   = { version = "0.9", features = ["pkcs5"] }
+
+# --- TLS backends (optional, feature-gated) ---
+native-tls         = { version = "0.2", optional = true }
+rustls             = { version = "0.23", features = ["std"], optional = true }
+rustls-pki-types   = { version = "1", optional = true }
+rustls-native-certs= { version = "0.8.1", optional = true }
+webpki-roots       = { version = "1.0.2", optional = true }
+
+# --- Optional type ecosystems for conversions ---
+chrono       = { version = "0.4", default-features = false, features = ["std", "clock"], optional = true }
+time         = { version = "0.3", default-features = false, features = ["std"], optional = true }
+
+bigdecimal   = { version = "0.4", optional = true }
+rust_decimal = { version = "1",   optional = true }
+
+# -- Serialization framework (optional, feature-gated) ---
+serde        = { version = "1", features = ["derive"], optional = true } 
+
+[dev-dependencies]
+serde_json   = { version = "1" }
+
+[features]
+default = ["native-tls"]
+# TLS backends
+native-tls = ["dep:native-tls"]
+rustls-tls = [
+  "dep:rustls",
+  "dep:rustls-pki-types",
+  "dep:rustls-native-certs",
+  "dep:webpki-roots",
+]
+# Optional type ecosystems for conversions
+chrono = ["dep:chrono"]
+time   = ["dep:time"]
+bigdecimal   = ["dep:bigdecimal"]
+rust_decimal = ["dep:rust_decimal"]
+serde = ["dep:serde"]

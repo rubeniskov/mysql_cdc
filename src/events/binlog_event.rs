@@ -26,7 +26,7 @@ pub enum BinlogEvent {
     IntVarEvent(IntVarEvent),
     UserVarEvent(UserVarEvent),
     QueryEvent(QueryEvent),
-    TableMapEvent(TableMapEvent),
+    TableMapEvent(Box<TableMapEvent>),
     RotateEvent(RotateEvent),
     RowsQueryEvent(RowsQueryEvent),
     HeartbeatEvent(HeartbeatEvent),

@@ -1,7 +1,7 @@
 use mysql_cdc::binlog_client::BinlogClient;
 use mysql_cdc::binlog_options::BinlogOptions;
 use mysql_cdc::errors::Error;
-use mysql_cdc::providers::mariadb::gtid::gtid_list::GtidList;
+use mysql_cdc::providers::mariadb::gtid::GtidList;
 use mysql_cdc::providers::mysql::gtid::gtid_set::GtidSet;
 use mysql_cdc::replica_options::ReplicaOptions;
 use mysql_cdc::ssl_mode::SslMode;
@@ -28,10 +28,11 @@ fn main() -> Result<(), Error> {
 
     let options = ReplicaOptions {
         username: String::from("root"),
-        password: String::from("Qwertyu1"),
+        password: Some(String::from("!ChangeMe!")),
         blocking: true,
-        ssl_mode: SslMode::Disabled,
+        ssl_mode: SslMode::IfAvailable,
         binlog: options,
+        hostname: "127.0.0.1".to_string(),
         ..Default::default()
     };
 

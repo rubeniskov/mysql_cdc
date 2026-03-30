@@ -1,7 +1,7 @@
 use std::{io, num::ParseIntError, str::Utf8Error, string::FromUtf8Error};
 
 use hex::FromHexError;
-use openssl::error::ErrorStack;
+//use openssl::error::ErrorStack;
 
 #[derive(Debug)]
 pub enum Error {
@@ -10,7 +10,7 @@ pub enum Error {
     FromUtf8Error(FromUtf8Error),
     FromHexError(FromHexError),
     ParseIntError(ParseIntError),
-    ErrorStack(ErrorStack),
+    //ErrorStack(ErrorStack),
     String(String),
 }
 
@@ -44,8 +44,8 @@ impl From<ParseIntError> for Error {
     }
 }
 
-impl From<ErrorStack> for Error {
+/* impl From<ErrorStack> for Error {
     fn from(error: ErrorStack) -> Self {
         Error::ErrorStack(error)
     }
-}
+} */

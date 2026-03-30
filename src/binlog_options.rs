@@ -1,6 +1,6 @@
 use crate::constants::FIRST_EVENT_POSITION;
-use crate::providers::mariadb::gtid::gtid_list::GtidList;
-use crate::providers::mysql::gtid::gtid_set::GtidSet;
+use crate::providers::mariadb::gtid::GtidList;
+use crate::providers::mysql::gtid::GtidSet;
 use crate::starting_strategy::StartingStrategy;
 
 /// Replication options used when client connects to the server.

@@ -22,6 +22,7 @@ use crate::providers::mysql::events::prev_gtids_event::PreviousGtidsEvent;
 use std::collections::HashMap;
 use std::io::Cursor;
 
+#[derive(Default)]
 pub struct EventParser {
     /// Gets checksum algorithm type used in a binlog file.
     pub checksum_type: ChecksumType,
@@ -51,10 +52,10 @@ impl EventParser {
 
         let binlog_event: BinlogEvent = match EventType::from_code(header.event_type) {
             EventType::FormatDescriptionEvent => BinlogEvent::FormatDescriptionEvent(
-                FormatDescriptionEvent::parse(&mut cursor, &header)?,
+                FormatDescriptionEvent::parse(&mut cursor, header)?,
             ),
             EventType::TableMapEvent => {
-                BinlogEvent::TableMapEvent(TableMapEvent::parse(&mut cursor)?)
+                BinlogEvent::TableMapEvent(Box::new(TableMapEvent::parse(&mut cursor)?))
             }
             EventType::HeartbeatEvent => {
                 BinlogEvent::HeartbeatEvent(HeartbeatEvent::parse(&mut cursor)?)
@@ -99,7 +100,7 @@ impl EventParser {
             }
             // MariaDB specific events
             EventType::MariaDbGtidEvent => {
-                BinlogEvent::MariaDbGtidEvent(MariaDbGtidEvent::parse(&mut cursor, &header)?)
+                BinlogEvent::MariaDbGtidEvent(MariaDbGtidEvent::parse(&mut cursor, header)?)
             }
             EventType::MariaDbGtidListEvent => {
                 BinlogEvent::MariaDbGtidListEvent(GtidListEvent::parse(&mut cursor)?)
@@ -115,7 +116,7 @@ impl EventParser {
         }
 
         if let BinlogEvent::TableMapEvent(x) = &binlog_event {
-            self.table_map.insert(x.table_id, x.clone()); //todo: optimize
+            self.table_map.insert(x.table_id, *x.clone()); //todo: optimize
         }
 
         Ok(binlog_event)

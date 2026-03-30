@@ -1,8 +1,8 @@
 use crate::errors::Error;
-use crate::providers::mysql::gtid::gtid::Gtid;
 use crate::providers::mysql::gtid::interval::Interval;
 use crate::providers::mysql::gtid::uuid::Uuid;
 use crate::providers::mysql::gtid::uuid_set::UuidSet;
+use crate::providers::mysql::gtid::Gtid;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -10,7 +10,7 @@ const UUID_LENGTH: usize = 36;
 
 /// Represents GtidSet from MySQL 5.6 and above.
 /// <a href="https://dev.mysql.com/doc/refman/8.0/en/replication-gtids-concepts.html">See more</a>
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct GtidSet {
     /// Gets a list of UuidSet parts in the GtidSet.
     pub uuid_sets: HashMap<String, UuidSet>,
@@ -63,7 +63,7 @@ impl GtidSet {
             .entry(gtid.source_id.uuid.clone())
             .or_insert(UuidSet::new(gtid.source_id.clone(), Vec::new()));
 
-        Ok(uuid_set.add_gtid(gtid)?)
+        uuid_set.add_gtid(gtid)
     }
 }
 
@@ -83,9 +83,7 @@ impl fmt::Display for GtidSet {
 
 #[cfg(test)]
 mod tests {
-    use crate::providers::mysql::gtid::{
-        gtid::Gtid, gtid_set::GtidSet, interval::Interval, uuid::Uuid,
-    };
+    use crate::providers::mysql::gtid::{interval::Interval, uuid::Uuid, Gtid, GtidSet};
 
     pub const SERVER_UUID1: &str = "24bc7850-2c16-11e6-a073-0242ac110001";
     pub const SERVER_UUID2: &str = "24bc7850-2c16-11e6-a073-0242ac110002";
